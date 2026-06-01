@@ -314,7 +314,7 @@ def run_gui():
                 tf,
                 text="Trascina i PDF e premi Redact — "
                      "oppure doppio clic su un file per disegnare",
-                font=ctk.CTkFont("Segoe UI", 9),
+                font=ctk.CTkFont("Segoe UI", 11),
                 text_color="#888899"
             ).pack()
 
@@ -350,12 +350,12 @@ def run_gui():
             bf.pack(fill="x", padx=16, pady=2)
 
             def mkbtn(parent, text, cmd, **kw):
-                kw.setdefault("font", ctk.CTkFont("Segoe UI", 10))
+                kw.setdefault("font", ctk.CTkFont("Segoe UI", 12))
                 kw.setdefault("fg_color", SURFACE)
                 kw.setdefault("hover_color", BORDER)
                 kw.setdefault("text_color", FG)
                 kw.setdefault("corner_radius", 6)
-                kw.setdefault("height", 32)
+                kw.setdefault("height", 34)
                 return ctk.CTkButton(parent, text=text, command=cmd, **kw)
 
             self.browse_btn = mkbtn(bf, "Sfoglia...", self._browse)
@@ -376,7 +376,7 @@ def run_gui():
             self.clear_btn.pack(side="left", padx=(8, 0))
 
             self.count_label = ctk.CTkLabel(
-                bf, text="", font=ctk.CTkFont("Segoe UI", 9),
+                bf, text="", font=ctk.CTkFont("Segoe UI", 11),
                 text_color="#888899")
             self.count_label.pack(side="right")
 
@@ -391,7 +391,7 @@ def run_gui():
             self.progress.pack(fill="x")
 
             self.status_label = ctk.CTkLabel(
-                pf, text="", font=ctk.CTkFont("Segoe UI", 9),
+                pf, text="", font=ctk.CTkFont("Segoe UI", 11),
                 text_color="#888899", anchor="w")
             self.status_label.pack(fill="x", pady=(4, 0))
 
@@ -601,17 +601,17 @@ def run_gui():
         # ── costruzione UI ──────────────────────────────────────────────
         def _build_ui(self):
             def tbtn(parent, text, cmd, **kw):
-                kw.setdefault("font", ctk.CTkFont("Segoe UI", 10))
+                kw.setdefault("font", ctk.CTkFont("Segoe UI", 12))
                 kw.setdefault("fg_color", SURFACE)
                 kw.setdefault("hover_color", BORDER)
                 kw.setdefault("text_color", FG)
                 kw.setdefault("corner_radius", 6)
-                kw.setdefault("height", 30)
+                kw.setdefault("height", 34)
                 kw.setdefault("width", 0)
                 return ctk.CTkButton(parent, text=text, command=cmd, **kw)
 
             # ── Riga 1: strumenti + colore + annulla/pulisci ──
-            tb1 = ctk.CTkFrame(self.win, fg_color=BG, corner_radius=0, height=46)
+            tb1 = ctk.CTkFrame(self.win, fg_color=BG, corner_radius=0, height=52)
             tb1.pack(fill="x")
             tb1.pack_propagate(False)
 
@@ -628,10 +628,10 @@ def run_gui():
 
             self._color_btn = ctk.CTkButton(
                 tb1, text="■ Colore",
-                font=ctk.CTkFont("Segoe UI", 10),
+                font=ctk.CTkFont("Segoe UI", 12),
                 fg_color="#000000", hover_color="#222222",
                 text_color="white", corner_radius=6,
-                height=30, width=0, command=self._pick_color)
+                height=34, width=0, command=self._pick_color)
             self._color_btn.pack(side="left", padx=(0, 4), pady=8)
 
             tk.Frame(tb1, bg=BORDER, width=2, height=24).pack(
@@ -644,34 +644,34 @@ def run_gui():
 
             # ── Riga 2: zoom + navigazione + salva ──
             tb2 = ctk.CTkFrame(self.win, fg_color=SURFACE, corner_radius=0,
-                               height=40)
+                               height=44)
             tb2.pack(fill="x")
             tb2.pack_propagate(False)
 
-            tbtn(tb2, "−", lambda: self._zoom_by(0.8), width=32).pack(
+            tbtn(tb2, "−", lambda: self._zoom_by(0.8), width=36).pack(
                 side="left", padx=(8, 0), pady=5)
             self.zoom_lbl = ctk.CTkLabel(
-                tb2, text="100%", font=ctk.CTkFont("Segoe UI", 9),
-                text_color=FG, width=46)
+                tb2, text="100%", font=ctk.CTkFont("Segoe UI", 11),
+                text_color=FG, width=52)
             self.zoom_lbl.pack(side="left", padx=2)
-            tbtn(tb2, "+", lambda: self._zoom_by(1.25), width=32).pack(
+            tbtn(tb2, "+", lambda: self._zoom_by(1.25), width=36).pack(
                 side="left", padx=(0, 6), pady=5)
 
             tk.Frame(tb2, bg=BORDER, width=2, height=20).pack(
-                side="left", padx=6, pady=10)
+                side="left", padx=6, pady=12)
 
             self.prev_btn = tbtn(tb2, "◀ Prec.", lambda: self._go(-1))
             self.prev_btn.pack(side="left", padx=(0, 4), pady=5)
             self.page_lbl = ctk.CTkLabel(
-                tb2, text="", font=ctk.CTkFont("Segoe UI", 10),
-                text_color=FG, width=130)
+                tb2, text="", font=ctk.CTkFont("Segoe UI", 12),
+                text_color=FG, width=140)
             self.page_lbl.pack(side="left", padx=4)
             self.next_btn = tbtn(tb2, "Succ. ▶", lambda: self._go(1))
             self.next_btn.pack(side="left", padx=(0, 4), pady=5)
 
             self.save_btn = tbtn(
                 tb2, "✔ Applica e salva", self._save,
-                font=ctk.CTkFont("Segoe UI", 10, "bold"),
+                font=ctk.CTkFont("Segoe UI", 12, "bold"),
                 fg_color=ACCENT, hover_color=ACCENT2, text_color="white")
             self.save_btn.pack(side="right", padx=(0, 8), pady=5)
 
@@ -691,11 +691,19 @@ def run_gui():
             self.canvas.bind("<ButtonPress-1>",  self._on_press)
             self.canvas.bind("<B1-Motion>",       self._on_drag)
             self.canvas.bind("<ButtonRelease-1>", self._on_release)
+            # rotellina verticale (Windows/macOS e Linux)
+            self.canvas.bind("<MouseWheel>",   self._on_mousewheel)
+            self.canvas.bind("<Button-4>",     self._on_mousewheel)
+            self.canvas.bind("<Button-5>",     self._on_mousewheel)
+            # rotellina orizzontale con Shift
+            self.canvas.bind("<Shift-MouseWheel>", self._on_mousewheel_h)
+            self.canvas.bind("<Shift-Button-4>",   self._on_mousewheel_h)
+            self.canvas.bind("<Shift-Button-5>",   self._on_mousewheel_h)
 
             # ── Status bar ──
             self.status = ctk.CTkLabel(
                 self.win, text="",
-                font=ctk.CTkFont("Segoe UI", 9),
+                font=ctk.CTkFont("Segoe UI", 11),
                 text_color="#aaaacc", fg_color=SURFACE, anchor="w")
             self.status.pack(fill="x")
 
@@ -716,11 +724,7 @@ def run_gui():
             return f"#{r:02x}{g:02x}{b:02x}"
 
         def _fit_to_window(self):
-            avail = self.canvas.winfo_width()
-            if avail <= 1:
-                avail = max(400, self.win.winfo_width() - 40)
-            pw = self._page().rect.width or 1
-            self.zoom = max(self.ZOOM_MIN, min(self.ZOOM_MAX, (avail - 4) / pw))
+            self.zoom = 1.0
 
         # ── rendering ───────────────────────────────────────────────────
         def _render_page(self):
@@ -871,6 +875,18 @@ def run_gui():
             elif self.tool == "free":
                 self._add_free_mark()
             self._free_points = None
+
+        def _on_mousewheel(self, event):
+            if event.num == 4 or (hasattr(event, 'delta') and event.delta > 0):
+                self.canvas.yview_scroll(-1, "units")
+            else:
+                self.canvas.yview_scroll(1, "units")
+
+        def _on_mousewheel_h(self, event):
+            if event.num == 4 or (hasattr(event, 'delta') and event.delta > 0):
+                self.canvas.xview_scroll(-1, "units")
+            else:
+                self.canvas.xview_scroll(1, "units")
 
         def _add_rect_mark(self, x0, y0, x1, y1):
             if abs(x1 - x0) < 3 or abs(y1 - y0) < 3:
