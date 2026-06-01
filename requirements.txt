@@ -1,0 +1,4 @@
+PyMuPDF
+customtkinter
+windnd
+pyinstaller
