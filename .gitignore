@@ -33,6 +33,7 @@ MANIFEST
 *.manifest
 *.spec
 !gui.spec
+!gui-macos.spec
 
 # Installer logs
 pip-log.txt
