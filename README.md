@@ -1,4 +1,4 @@
-# Redact PDF v3.0 - Guida Deployment
+# Redact PDF v3.3 - Guida Deployment
 
 ## Cosa fa
 
@@ -8,6 +8,23 @@ che rimuovono permanentemente il testo e le immagini sottostanti.
 
 Dalla v3.0 include anche un **editor visuale**: si possono disegnare le
 redazioni direttamente sul PDF col mouse, senza usare un altro programma.
+
+## Novità v3.3 — Eliminazione puntuale dei segni
+
+> **Problema risolto:** con il solo Ctrl+Z era impossibile rimuovere un segno
+> specifico (es. il primo di cinquanta) senza annullare anche tutti quelli
+> successivi.
+
+Nuovo strumento **↖ Selezione** nell'editor visuale:
+
+1. Cliccare su **↖ Selezione** nella barra strumenti.
+2. Cliccare su qualsiasi segno già disegnato: si evidenzia con **bordo rosso**.
+3. Premere **Canc** (o Backspace) oppure il pulsante **"🗑 Elimina selezionato"**
+   per rimuoverlo — gli altri segni restano intatti.
+
+In caso di segni sovrapposti viene selezionato automaticamente quello con
+area minore. La selezione si azzera cambiando strumento o pagina.
+
 
 ## Doppia modalità
 
@@ -88,13 +105,15 @@ Lanciare `redact_pdf.exe` senza argomenti
 Nella GUI, **doppio clic** su un file in lista (o selezionarlo e premere
 **"Apri ed edita"**) apre l'editor:
 
-- **▭ Rettangolo** — trascina per coprire un'area. Funziona **anche sui PDF
-  scansionati**.
-- **✎ Testo** — trascina sul testo da nascondere: si aggancia alle parole
-  (solo PDF con testo reale, non scansioni).
-- **〰 Mano libera** — traccia col mouse sopra firme, timbri, aree irregolari.
-- **↶ Annulla** (Ctrl+Z), navigazione pagine, zoom + / −.
-- **✔ Applica e salva** (Ctrl+S) → crea `nomefile_redacted.pdf`.
+| Strumento | Scorciatoia | Descrizione |
+|-----------|-------------|-------------|
+| **▭ Rettangolo** | — | Trascina per coprire un'area. Funziona **anche sui PDF scansionati**. |
+| **✎ Testo** | — | Trascina sul testo da nascondere: si aggancia alle parole (solo PDF con testo reale). |
+| **〰 Mano libera** | — | Traccia col mouse sopra firme, timbri, aree irregolari. |
+| **↖ Selezione** *(v3.3)* | — | Clicca su un segno per selezionarlo (bordo rosso), poi Canc per eliminarlo. |
+| **↶ Annulla** | Ctrl+Z | Annulla l'ultimo segno aggiunto. |
+| **🗑 Elimina selezionato** *(v3.3)* | Canc | Elimina il segno selezionato, gli altri restano intatti. |
+| **✔ Applica e salva** | Ctrl+S | Crea `nomefile_redacted.pdf`. |
 
 Le redazioni rimuovono **davvero** il contenuto sottostante; l'originale non
 viene modificato.

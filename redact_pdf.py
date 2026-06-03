@@ -18,7 +18,7 @@ import fitz  # PyMuPDF
 import traceback
 from datetime import datetime
 
-VERSION = "3.1.0"
+VERSION = "3.3.0"
 OUTPUT_SUFFIX = "_redacted"
 
 # Tipi di annotazione trattati come coperture di redazione
