@@ -1,5 +1,56 @@
 # Redact PDF v3.3 - Guida Deployment
 
+---
+
+## ⚠️ Prima esecuzione — avvisi di sicurezza (Windows e macOS)
+
+L'eseguibile **non è firmato digitalmente** (la firma costa centinaia di euro/anno).
+Il file è sicuro: il codice sorgente è interamente disponibile in questo repository
+e chiunque può verificarlo. Gli avvisi qui sotto sono normali per qualsiasi programma
+gratuito e indipendente distribuito senza certificato commerciale.
+
+### Windows — SmartScreen
+
+Al primo avvio Windows mostra *"Il PC è stato protetto"*:
+
+1. Clicca **"Ulteriori informazioni"** (in basso a sinistra nella finestra dell'avviso).
+2. Clicca **"Esegui comunque"**.
+
+Questo passaggio va fatto **una volta sola**: le esecuzioni successive non mostrano
+più l'avviso.
+
+In alternativa, prima di eseguire il file:
+
+1. Tasto destro sull'EXE → **Proprietà**.
+2. In fondo alla scheda *Generale*, spunta **"Sblocca"**.
+3. Clicca OK.
+
+### macOS — Gatekeeper
+
+macOS blocca l'apertura di applicazioni scaricate da internet non firmate da Apple.
+
+**Metodo 1 — clic destro (più semplice):**
+
+1. Tasto destro (o Control+clic) sul file → **Apri**.
+2. Nella finestra di avviso clicca **"Apri"**.
+
+Anche qui basta farlo **una volta sola**.
+
+**Metodo 2 — Impostazioni di Sistema:**
+
+1. Prova ad aprire il file normalmente (verrà bloccato).
+2. Vai in **Impostazioni di Sistema → Privacy e Sicurezza**.
+3. Scorri fino alla sezione *Sicurezza*: trovi il messaggio relativo al file bloccato.
+4. Clicca **"Apri comunque"**.
+
+**Metodo 3 — Terminale (rimuove il blocco in modo definitivo):**
+
+```bash
+xattr -d com.apple.quarantine /percorso/redact_pdf
+```
+
+---
+
 ## Cosa fa
 
 Converte le annotazioni rettangolari (quadrati, cerchi, ink, ecc.)
