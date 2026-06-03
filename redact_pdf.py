@@ -572,13 +572,14 @@ def run_gui():
             self.zoom         = 1.0
             self.tool         = "rect"
             self.redact_color = (0, 0, 0)
-            self.marks        = {}
-            self.history      = []
-            self._photo       = None
-            self._drag_start  = None
-            self._free_points = None
-            self._live_ids    = []
-            self._color_btn   = None
+            self.marks         = {}
+            self.history       = []
+            self.selected_mark = None   # (page_index, mark_dict) | None
+            self._photo        = None
+            self._drag_start   = None
+            self._free_points  = None
+            self._live_ids     = []
+            self._color_btn    = None
 
             self.win = ctk.CTkToplevel(parent)
             self.win.title(f"Editor mascheramenti — {os.path.basename(path)}")
@@ -595,8 +596,10 @@ def run_gui():
 
             self.win.bind("<Control-z>", lambda e: self._undo())
             self.win.bind("<Control-s>", lambda e: self._save())
-            self.win.bind("<Next>",  lambda e: self._go(1))   # PagGiu
-            self.win.bind("<Prior>", lambda e: self._go(-1))  # PagSu
+            self.win.bind("<Next>",      lambda e: self._go(1))    # PagGiu
+            self.win.bind("<Prior>",     lambda e: self._go(-1))   # PagSu
+            self.win.bind("<Delete>",    lambda e: self._delete_selected())
+            self.win.bind("<BackSpace>", lambda e: self._delete_selected())
 
         # ── costruzione UI ──────────────────────────────────────────────
         def _build_ui(self):
@@ -616,9 +619,10 @@ def run_gui():
             tb1.pack_propagate(False)
 
             self.tool_btns = {}
-            for key, label in (("rect", "▭ Rettangolo"),
-                               ("text", "✎ Testo"),
-                               ("free", "〰 Mano libera")):
+            for key, label in (("rect",   "▭ Rettangolo"),
+                               ("text",   "✎ Testo"),
+                               ("free",   "〰 Mano libera"),
+                               ("select", "↖ Selezione")):
                 b = tbtn(tb1, label, lambda k=key: self._set_tool(k))
                 b.pack(side="left", padx=(8, 4), pady=8)
                 self.tool_btns[key] = b
@@ -641,6 +645,8 @@ def run_gui():
                 side="left", padx=(0, 4), pady=8)
             tbtn(tb1, "✗ Pulisci pagina", self._clear_page).pack(
                 side="left", padx=(0, 4), pady=8)
+            tbtn(tb1, "🗑 Elimina selezionato", self._delete_selected,
+                 text_color=ERROR).pack(side="left", padx=(0, 4), pady=8)
 
             # ── Riga 2: zoom + navigazione + salva ──
             tb2 = ctk.CTkFrame(self.win, fg_color=SURFACE, corner_radius=0,
@@ -748,11 +754,17 @@ def run_gui():
 
         def _redraw_marks(self):
             self.canvas.delete("mark")
+            sel_mark = (self.selected_mark[1]
+                        if self.selected_mark and
+                           self.selected_mark[0] == self.page_index
+                        else None)
             for mark in self.marks.get(self.page_index, []):
-                self._draw_mark(mark)
+                self._draw_mark(mark, selected=(mark is sel_mark))
 
-        def _draw_mark(self, mark):
-            color = self._tk_color(mark.get("color", (0, 0, 0)))
+        def _draw_mark(self, mark, selected=False):
+            color   = self._tk_color(mark.get("color", (0, 0, 0)))
+            outline = "#ff3333" if selected else ACCENT
+            lwidth  = 2        if selected else 1
             if mark["type"] == "free":
                 pts = mark["points"]
                 if len(pts) >= 2:
@@ -766,14 +778,14 @@ def run_gui():
                         capstyle="round", joinstyle="round",
                         stipple="gray50", tags="mark")
                     self.canvas.create_line(
-                        *flat, fill=ACCENT, width=1, tags="mark")
+                        *flat, fill=outline, width=lwidth, tags="mark")
                 else:
                     x, y = pts[0]
                     cx, cy = self.pdf_to_canvas(x, y)
                     rr = mark["half"] * self.zoom
                     self.canvas.create_oval(
                         cx - rr, cy - rr, cx + rr, cy + rr,
-                        fill=color, outline=ACCENT,
+                        fill=color, outline=outline,
                         stipple="gray50", tags="mark")
             else:
                 for r in mark_to_rects(mark):
@@ -781,11 +793,15 @@ def run_gui():
                     cx1, cy1 = self.pdf_to_canvas(r.x1, r.y1)
                     self.canvas.create_rectangle(
                         cx0, cy0, cx1, cy1, fill=color,
-                        stipple="gray50", outline=ACCENT, width=1,
+                        stipple="gray50", outline=outline, width=lwidth,
                         tags="mark")
 
         # ── strumenti / eventi ──────────────────────────────────────────
         def _set_tool(self, key):
+            if key != "select" and self.selected_mark is not None:
+                self.selected_mark = None
+                if self._photo is not None:
+                    self._redraw_marks()
             self.tool = key
             for k, b in self.tool_btns.items():
                 if k == key:
@@ -795,7 +811,7 @@ def run_gui():
                     b.configure(fg_color=SURFACE, hover_color=BORDER,
                                 text_color=FG)
             cursor = {"rect": "crosshair", "text": "xterm",
-                      "free": "pencil"}.get(key, "crosshair")
+                      "free": "pencil", "select": "arrow"}.get(key, "crosshair")
             try:
                 self.canvas.config(cursor=cursor)
             except Exception:
@@ -807,6 +823,9 @@ def run_gui():
                         "(solo PDF con testo, non scansioni).",
                 "free": "Mano libera: tieni premuto e traccia "
                         "sopra l'area da coprire.",
+                "select": "Selezione: clicca su un segno per "
+                          "selezionarlo (rosso), poi premi Canc o "
+                          "\"Elimina selezionato\" per rimuoverlo.",
             }[key]
             self._status(hint)
 
@@ -836,6 +855,20 @@ def run_gui():
         def _on_press(self, event):
             cx = self.canvas.canvasx(event.x)
             cy = self.canvas.canvasy(event.y)
+            if self.tool == "select":
+                px, py = self.canvas_to_pdf(cx, cy)
+                hit = self._find_mark_at(px, py)
+                self.selected_mark = (self.page_index, hit) if hit else None
+                self._redraw_marks()
+                if hit:
+                    self._status(
+                        "Segno selezionato — premi Canc (o clicca "
+                        "\"Elimina selezionato\") per rimuoverlo.")
+                else:
+                    self._status(
+                        "Nessun segno qui. Clicca su un'area colorata.",
+                        warn=True)
+                return
             self._drag_start = (cx, cy)
             self._clear_live()
             if self.tool == "free":
@@ -938,12 +971,44 @@ def run_gui():
                 if lst[i] is mark:
                     del lst[i]
                     break
+            if self.selected_mark and self.selected_mark[1] is mark:
+                self.selected_mark = None
             if pno == self.page_index:
                 self._redraw_marks()
             else:
                 self.page_index = pno
                 self._render_page()
             self._status("Annullato.")
+
+        def _find_mark_at(self, px, py):
+            """Restituisce il segno più piccolo che contiene il punto PDF (px, py)."""
+            candidates = []
+            for mark in self.marks.get(self.page_index, []):
+                rects = mark_to_rects(mark)
+                for r in rects:
+                    if r.x0 <= px <= r.x1 and r.y0 <= py <= r.y1:
+                        area = sum(rr.width * rr.height for rr in rects)
+                        candidates.append((area, mark))
+                        break
+            if not candidates:
+                return None
+            return min(candidates, key=lambda x: x[0])[1]
+
+        def _delete_selected(self):
+            if not self.selected_mark:
+                return
+            pno, mark = self.selected_mark
+            lst = self.marks.get(pno, [])
+            for i in range(len(lst)):
+                if lst[i] is mark:
+                    del lst[i]
+                    break
+            self.history = [(p, m) for (p, m) in self.history if m is not mark]
+            self.selected_mark = None
+            if pno == self.page_index:
+                self._redraw_marks()
+            n = sum(len(v) for v in self.marks.values())
+            self._status(f"Segno eliminato. {n} segni rimanenti.")
 
         def _clear_page(self):
             if self.marks.get(self.page_index):
@@ -956,6 +1021,7 @@ def run_gui():
         def _go(self, delta):
             new = self.page_index + delta
             if 0 <= new < self.doc.page_count:
+                self.selected_mark = None
                 self.page_index = new
                 self._render_page()
 
