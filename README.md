@@ -170,6 +170,29 @@ Le redazioni rimuovono **davvero** il contenuto sottostante; l'originale non
 viene modificato.
 
 
+## Test
+
+La suite copre la logica di redazione senza GUI: `mark_to_rects`, `apply_secure_redactions`,
+`process_pdf` su PDF vettoriale (rimozione testo) e su PDF scansionato (pixel-level).
+
+### Prerequisiti
+
+```bash
+uv sync --group dev
+```
+
+### Esecuzione
+
+```bash
+uv run pytest
+# oppure con output dettagliato:
+uv run pytest -v
+```
+
+I file di riferimento (`scan.pdf`, `vector.pdf`) si trovano in `tests/resources/`.
+Ogni test usa una copia temporanea e non modifica i file originali.
+
+
 ## Troubleshooting
 
 - Log: `redact_pdf.log` accanto all'EXE
